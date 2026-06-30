@@ -1,0 +1,220 @@
+# J.A.R.V.I.S. OS - Integrations Configuration
+# Copy to config/integrations.yaml and fill in your API keys
+# NEVER commit this file with real keys!
+
+integrations:
+  # AI Providers
+  openrouter:
+    enabled: true
+    api_key: ""  # Get from https://openrouter.ai/keys
+    base_url: "https://openrouter.ai/api/v1"
+    default_model: "anthropic/claude-3.5-sonnet"
+    fallback_models:
+      - "google/gemini-pro-1.5"
+      - "meta-llama/llama-3.1-70b-instruct"
+  
+  anthropic:
+    enabled: true
+    api_key: ""  # Get from https://console.anthropic.com/
+    default_model: "claude-3-5-sonnet-20241022"
+  
+  openai:
+    enabled: true
+    api_key: ""  # Get from https://platform.openai.com/api-keys
+    default_model: "gpt-4o"
+    organization: ""
+  
+  groq:
+    enabled: true
+    api_key: ""  # Get from https://console.groq.com/keys
+    default_model: "llama-3.1-70b-versatile"
+  
+  gemini:
+    enabled: true
+    api_key: ""  # Get from https://makersuite.google.com/app/apikey
+    default_model: "gemini-1.5-pro"
+
+  # Voice Pipeline
+  porcupine:
+    enabled: true
+    access_key: ""  # Get from https://console.picovoice.ai/ (free: 3 keywords)
+    keywords:
+      - "jarvis"
+      - "wake up jarvis"
+    sensitivities:
+      - 0.7
+      - 0.6
+  
+  whisper:
+    enabled: true
+    model: "base.en"  # tiny.en, base.en, small.en, medium.en, large-v3
+    device: "cpu"  # or "cuda" for GPU
+    compute_type: "int8"
+  
+  piper:
+    enabled: true
+    voice: "en_GB-alan-medium"  # British male (JARVIS-like)
+    # Alternative voices: en_US-lessac-medium, en_US-ryan-high
+    length_scale: 1.0
+    noise_scale: 0.667
+  
+  rvc:
+    enabled: false  # Optional: voice conversion for exact JARVIS tone
+    model_path: "voice/models/rvc/jarvis.pth"
+    index_path: "voice/models/rvc/jarvis.index"
+
+  # Tool Integrations
+  composio:
+    enabled: true
+    api_key: ""  # Get from https://composio.dev/
+    # Auto-connects to: Gmail, Calendar, Drive, Notion, Slack, GitHub, Linear, etc.
+
+  github:
+    enabled: true
+    token: ""  # Personal Access Token (classic) with repo, workflow, admin:repo_hook
+    username: ""  # Your GitHub username
+    webhook_secret: ""  # For receiving webhooks
+
+  # Backup
+  hostinger:
+    enabled: true
+    host: ""  # e.g., "srv123.hostinger.com" or IP
+    user: ""  # e.g., "u1234567"
+    port: 22
+    ssh_key_path: "config/ssh/hostinger_key"  # ed25519 private key
+    backup_path: "/home/u1234567/jarvis_backups"
+    retention_days: 30
+    encryption: true  # Uses age encryption if available
+
+  # Communication
+  gmail:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    refresh_token: ""
+    scopes:
+      - "https://www.googleapis.com/auth/gmail.readonly"
+      - "https://www.googleapis.com/auth/gmail.send"
+      - "https://www.googleapis.com/auth/gmail.modify"
+
+  google_calendar:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    refresh_token: ""
+    calendar_id: "primary"
+    scopes:
+      - "https://www.googleapis.com/auth/calendar.readonly"
+      - "https://www.googleapis.com/auth/calendar.events"
+
+  google_drive:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    refresh_token: ""
+    scopes:
+      - "https://www.googleapis.com/auth/drive.file"
+      - "https://www.googleapis.com/auth/drive.readonly"
+
+  notion:
+    enabled: false
+    api_key: ""  # Get from https://www.notion.so/my-integrations
+    database_ids:
+      tasks: ""
+      projects: ""
+      notes: ""
+
+  slack:
+    enabled: false
+    bot_token: ""  # xoxb-...
+    app_token: ""  # xapp-... (for Socket Mode)
+    signing_secret: ""
+    default_channel: "#jarvis"
+
+  discord:
+    enabled: false
+    bot_token: ""  # Get from https://discord.com/developers/applications
+    application_id: ""
+    guild_id: ""
+
+  telegram:
+    enabled: false
+    bot_token: ""  # Get from @BotFather
+    chat_id: ""  # Your chat ID
+
+  # Social Media
+  twitter:
+    enabled: false
+    api_key: ""
+    api_secret: ""
+    access_token: ""
+    access_token_secret: ""
+    bearer_token: ""
+
+  linkedin:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    access_token: ""
+
+  instagram:
+    enabled: false
+    access_token: ""  # Long-lived token
+    business_account_id: ""
+
+  tiktok:
+    enabled: false
+    client_key: ""
+    client_secret: ""
+    access_token: ""
+
+  facebook:
+    enabled: false
+    app_id: ""
+    app_secret: ""
+    access_token: ""
+    page_id: ""
+
+  # Financial
+  stripe:
+    enabled: false
+    secret_key: ""  # sk_test_... or sk_live_...
+    publishable_key: ""  # pk_test_... or pk_live_...
+    webhook_secret: ""
+
+  square:
+    enabled: false
+    access_token: ""  # OAuth access token
+    environment: "sandbox"  # or "production"
+    location_id: ""
+
+  # Monitoring (optional)
+  sentry:
+    enabled: false
+    dsn: ""
+    environment: "production"
+
+  datadog:
+    enabled: false
+    api_key: ""
+    app_key: ""
+    site: "datadoghq.com"
+
+# Rate limiting
+rate_limits:
+  openrouter: 60  # requests per minute
+  anthropic: 50
+  openai: 60
+  groq: 30
+  gemini: 60
+
+# Feature flags
+features:
+  voice_pipeline: true
+  brain_sync: true
+  cron_automation: true
+  hostinger_backup: true
+  mission_control: true
+  agent_orchestration: true
+  security_hardening: true
+  prompt_injection_defense: true

@@ -1,0 +1,71 @@
+# J.A.R.V.I.S. OS - Fly.io Configuration
+# Deploy with: fly launch --no-deploy && fly deploy
+
+app = "jarvis-os"
+primary_region = "lax"  # Los Angeles - change to your nearest region
+default_process = "web"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Application
+  PYTHONUNBUFFERED = "1"
+  PORT = "8080"
+  JARVIS_ROOT = "/opt/data/JARVIS_OS"
+  
+  # Disable telemetry noise
+  UVICORN_WS_PROTOCOL = "websockets"
+  
+  # Set to "production" for less verbose logging
+  ENVIRONMENT = "production"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false    # Keep alive for cron/voice
+  auto_start_machines = true
+  min_machines_running = 1
+  
+  # Timeouts
+  graceful_shutdown_timeout = "30s"
+  
+  # Enable WebSocket upgrades
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 1000
+    soft_limit = 800
+
+# Persistent volume for brains, vector DB, logs, backups
+[mounts]
+  source = "jarvis_data"
+  destination = "/opt/data/JARVIS_OS"
+
+# Resource limits (free tier: shared-cpu-1x, 256MB)
+[[vm]]
+  size = "shared-cpu-1x"
+  cpus = 1
+  memory_mb = 256
+
+# Scale configuration
+[scale]
+  min = 1
+  max = 2  # Free tier allows up to 3 VMs total
+
+# Health checks
+[checks]
+  [checks.http]
+    interval = "30s"
+    timeout = "10s"
+    grace_period = "30s"
+    method = "GET"
+    path = "/health"
+    port = 8080
+    headers = { "User-Agent" = "fly-healthcheck" }
+
+# Release command (runs before each deploy)
+[release]
+  cmd = "python3 -c \"import sys; sys.path.insert(0, '.'); from scripts.brain_sync.index_brains import index_brains; index_brains()\""
+
+# Optional: Add secrets via `fly secrets set`
+# fly secrets set OPENROUTER_API_KEY=xxx COMPOSIO_API_KEY=xxx HOSTINGER_SSH_KEY=xxx

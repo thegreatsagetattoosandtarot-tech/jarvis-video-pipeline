@@ -1,0 +1,128 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jarvis-os"
+version = "1.0.0"
+description = "J.A.R.V.I.S. OS - Unified AI Operating System with Dual-Brain Architecture, 12 Archangel Agents, Voice Pipeline, and Mission Control Dashboard"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Angel", email = "angel@thegreatsage.io"}
+]
+maintainers = [
+    {name = "Angel", email = "angel@thegreatsage.io"}
+]
+keywords = [
+    "ai", "assistant", "jarvis", "voice", "agents", "automation", 
+    "dual-brain", "vector-memory", "mission-control", "archangel"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Home Automation",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "websockets>=12.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "pyyaml>=6.0.1",
+    "psutil>=6.0.0",
+    "GPUtil>=1.4.0",
+    "chromadb>=0.4.22",
+    "sentence-transformers>=2.2.2",
+    "torch>=2.2.0",
+    "pvporcupine>=3.0.0",
+    "openai-whisper>=20231117",
+    "piper-tts>=1.2.0",
+    "sounddevice>=0.4.6",
+    "scipy>=1.12.0",
+    "numpy>=1.26.0",
+    "webrtcvad>=2.0.10",
+    "openai>=1.12.0",
+    "anthropic>=0.18.0",
+    "google-generativeai>=0.3.0",
+    "groq>=0.5.0",
+    "httpx>=0.26.0",
+    "aiohttp>=3.9.0",
+    "requests>=2.31.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "apscheduler>=3.10.0",
+    "croniter>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "click>=8.1.0",
+    "rich>=13.7.0",
+    "tqdm>=4.66.0",
+    "python-dateutil>=2.8.2",
+    "cron-descriptor>=1.2.0",
+    "cryptography>=42.0.0",
+    "bcrypt>=4.1.0",
+    "pyjwt>=2.8.0",
+    "python-magic>=0.4.27",
+    "markdown>=3.5.0",
+    "beautifulsoup4>=4.12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.12.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+]
+gpu = [
+    "torch>=2.2.0",
+    "nvidia-ml-py3>=7.352.0",
+]
+voice = [
+    "pvporcupine>=3.0.0",
+    "openai-whisper>=20231117",
+    "piper-tts>=1.2.0",
+    "sounddevice>=0.4.6",
+]
+
+[project.scripts]
+jarvis = "jarvis_os:main"
+jarvis-dashboard = "services.mission_control.main:app"
+jarvis-voice = "services.voice_service.main:main"
+jarvis-brain-sync = "services.brain_sync.brain_sync_service:main"
+jarvis-backup = "services.backup_service.main:main"
+jarvis-cron = "services.cron_service.scheduler:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+select = ["E", "F", "I", "UP", "W"]
+ignore = ["E501", "UP007"]
+
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+include = "\\.pyi?$"
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
