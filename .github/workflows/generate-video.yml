@@ -1,0 +1,68 @@
+name: Generate Video with AI
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Video prompt'
+        required: true
+        default: 'Tattooed hands pulling The Star tarot card from a deck, candlelight, dark mystical atmosphere, cinematic'
+      duration:
+        description: 'Duration in seconds'
+        required: false
+        default: '5'
+      model:
+        description: 'Model to use (cogvideox, ltx, hunyuan, wan)'
+        required: false
+        default: 'cogvideox'
+
+jobs:
+  generate-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install huggingface_hub requests fal-client replicate
+
+      - name: Create output directory
+        run: mkdir -p output
+
+      - name: Generate video via HuggingFace Inference
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          FAL_KEY: ${{ secrets.FAL_KEY }}
+          REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+        run: |
+          python generate_video.py \
+            --prompt "${{ github.event.inputs.prompt }}" \
+            --duration "${{ github.event.inputs.duration }}" \
+            --model "${{ github.event.inputs.model }}" \
+            --output output/video.mp4
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-video-${{ github.run_number }}
+          path: output/video.mp4
+          retention-days: 7
+
+      - name: Summary
+        run: |
+          echo "## 🎬 Video Generation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Prompt:** ${{ github.event.inputs.prompt }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Duration:** ${{ github.event.inputs.duration }}s" >> $GITHUB_STEP_SUMMARY
+          echo "**Model:** ${{ github.event.inputs.model }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Download the video from the **Artifacts** section above (available for 7 days)." >> $GITHUB_STEP_SUMMARY
+          if [ -f output/video.mp4 ]; then
+            SIZE=$(du -sh output/video.mp4 | cut -f1)
+            echo "**File size:** $SIZE" >> $GITHUB_STEP_SUMMARY
+          fi
