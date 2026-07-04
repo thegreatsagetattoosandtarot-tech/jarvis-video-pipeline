@@ -1,0 +1,285 @@
+# J.A.R.V.I.S. OS - Cron Jobs Configuration
+# All scheduled automation jobs
+
+jobs:
+  # System Health & Monitoring
+  - name: "system_health_check"
+    schedule: "*/5 * * * *"  # Every 5 minutes
+    service: "cron_service"
+    action: "health_check"
+    enabled: true
+    description: "Check CPU, RAM, GPU, Disk, Network status"
+    timeout: 30
+    retries: 2
+
+  - name: "service_health_check"
+    schedule: "*/15 * * * *"  # Every 15 minutes
+    service: "cron_service"
+    action: "check_services"
+    enabled: true
+    description: "Verify all JARVIS services are running"
+    timeout: 60
+    retries: 3
+
+  # Daily Reports (6:00 AM MST)
+  - name: "daily_report"
+    schedule: "0 6 * * *"
+    service: "cron_service"
+    action: "generate_daily_report"
+    enabled: true
+    description: "Morning briefing: weather, stocks, tasks, calendar, finances"
+    timeout: 120
+    retries: 2
+    params:
+      include_weather: true
+      include_stocks: true
+      include_tasks: true
+      include_calendar: true
+      include_finances: true
+
+  - name: "weather_summary"
+    schedule: "15 6 * * *"
+    service: "cron_service"
+    action: "fetch_weather"
+    enabled: true
+    description: "Detailed weather forecast for the day"
+    timeout: 30
+    retries: 2
+    params:
+      location: "Phoenix, AZ"
+      units: "imperial"
+
+  - name: "stock_report"
+    schedule: "30 9 * * 1-5"  # Market days 9:30 AM
+    service: "cron_service"
+    action: "fetch_stocks"
+    enabled: true
+    description: "Pre-market stock report"
+    timeout: 60
+    retries: 2
+    params:
+      symbols: ["SPY", "QQQ", "AAPL", "MSFT", "NVDA", "TSLA", "BTC-USD", "ETH-USD"]
+
+  - name: "task_summary"
+    schedule: "0 8 * * *"
+    service: "cron_service"
+    action: "summarize_tasks"
+    enabled: true
+    description: "Daily task overview and priorities"
+    timeout: 60
+    retries: 1
+
+  - name: "financial_report"
+    schedule: "0 18 * * *"
+    service: "cron_service"
+    action: "generate_financial_report"
+    enabled: true
+    description: "End-of-day financial summary"
+    timeout: 120
+    retries: 2
+    params:
+      include_revenue: true
+      include_expenses: true
+      include_forecasts: true
+
+  # Nightly Audit (2:00 AM)
+  - name: "nightly_audit"
+    schedule: "0 2 * * *"
+    service: "cron_service"
+    action: "run_nightly_audit"
+    enabled: true
+    description: "Code review, security scan, performance check"
+    timeout: 600
+    retries: 1
+    params:
+      code_review: true
+      security_scan: true
+      performance_check: true
+      dependency_audit: true
+
+  # Brain Synchronization
+  - name: "brain_sync"
+    schedule: "*/30 * * * *"  # Every 30 minutes
+    service: "brain_sync"
+    action: "sync_brains"
+    enabled: true
+    description: "Sync Obsidian ↔ Holographic ↔ Vector DB"
+    timeout: 180
+    retries: 2
+
+  - name: "vector_reindex"
+    schedule: "0 3 * * *"
+    service: "brain_sync"
+    action: "reindex_vector_db"
+    enabled: true
+    description: "Full vector database reindex"
+    timeout: 600
+    retries: 1
+
+  # Dream Process (3:00 AM)
+  - name: "dream_process"
+    schedule: "0 3 * * *"
+    service: "cron_service"
+    action: "run_dream_process"
+    enabled: true
+    description: "Nightly synthesis, pattern recognition, insight generation"
+    timeout: 600
+    retries: 1
+    params:
+      analyze_patterns: true
+      generate_insights: true
+      update_holographic: true
+
+  # Weekly Review (Monday 7:00 AM)
+  - name: "weekly_review"
+    schedule: "0 7 * * 1"
+    service: "cron_service"
+    action: "generate_weekly_review"
+    enabled: true
+    description: "Weekly progress, patterns, adjustments"
+    timeout: 300
+    retries: 2
+    params:
+      include_metrics: true
+      include_patterns: true
+      include_recommendations: true
+
+  # Monthly Review (1st of month 8:00 AM)
+  - name: "monthly_review"
+    schedule: "0 8 1 * *"
+    service: "cron_service"
+    action: "generate_monthly_review"
+    enabled: true
+    description: "Strategic alignment, course correction"
+    timeout: 600
+    retries: 1
+    params:
+      include_strategic: true
+      include_financial: true
+      include_architecture: true
+
+  # Hostinger Backup (4:00 AM daily)
+  - name: "hostinger_backup"
+    schedule: "0 4 * * *"
+    service: "backup_service"
+    action: "sync_to_hostinger"
+    enabled: true
+    description: "SCP backup to Hostinger server"
+    timeout: 300
+    retries: 3
+    params:
+      include_brains: true
+      include_config: true
+      include_logs: false
+      include_vector_db: true
+      compress: true
+
+  # Log Rotation (Daily 5:00 AM)
+  - name: "log_rotation"
+    schedule: "0 5 * * *"
+    service: "cron_service"
+    action: "rotate_logs"
+    enabled: true
+    description: "Rotate and compress old logs"
+    timeout: 60
+    retries: 1
+    params:
+      max_age_days: 30
+      compress: true
+      max_size_mb: 100
+
+  # Integrity Check (Daily 5:30 AM)
+  - name: "integrity_check"
+    schedule: "30 5 * * *"
+    service: "cron_service"
+    action: "verify_integrity"
+    enabled: true
+    description: "File integrity verification via hashes"
+    timeout: 180
+    retries: 2
+
+  # Security Audit (Daily 1:00 AM)
+  - name: "security_audit"
+    schedule: "0 1 * * *"
+    service: "cron_service"
+    action: "security_audit"
+    enabled: true
+    description: "Security hardening verification"
+    timeout: 300
+    retries: 2
+    params:
+      check_permissions: true
+      check_ssh: true
+      check_api_keys: true
+      scan_vulnerabilities: true
+
+  # Update Check (Weekly Sunday 6:00 AM)
+  - name: "update_check"
+    schedule: "0 6 * * 0"
+    service: "cron_service"
+    action: "check_updates"
+    enabled: true
+    description: "Check for system and dependency updates"
+    timeout: 180
+    retries: 2
+    params:
+      check_python: true
+      check_node: true
+      check_docker: true
+      check_ollama: true
+
+  # Tattoo Business Automation
+  - name: "tattoo_booking_check"
+    schedule: "*/30 8-20 * * *"
+    service: "business_automation"
+    action: "check_bookings"
+    enabled: false
+    description: "Check for new tattoo appointments"
+    timeout: 60
+    retries: 2
+
+  - name: "client_followup"
+    schedule: "0 10 * * *"
+    service: "business_automation"
+    action: "send_followups"
+    enabled: false
+    description: "Automated client follow-up messages"
+    timeout: 120
+    retries: 2
+
+  - name: "social_media_post"
+    schedule: "0 12 * * *"
+    service: "business_automation"
+    action: "post_social_media"
+    enabled: false
+    description: "Daily social media content posting"
+    timeout: 180
+    retries: 2
+
+  # Agent Health Checks
+  - name: "agent_health_check"
+    schedule: "*/10 * * * *"
+    service: "agent_orchestrator"
+    action: "check_agent_health"
+    enabled: true
+    description: "Verify all 12 archangel agents are responsive"
+    timeout: 60
+    retries: 2
+
+# Job execution settings
+execution:
+  max_concurrent_jobs: 3
+  default_timeout: 300
+  default_retries: 2
+  retry_delay: 60
+  log_level: "INFO"
+
+# Notification settings
+notifications:
+  on_failure: true
+  on_success: false
+  channels:
+    - "log"
+    # - "discord"
+    # - "telegram"
+    # - "email"

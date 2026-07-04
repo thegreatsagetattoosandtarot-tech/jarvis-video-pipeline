@@ -1,0 +1,202 @@
+# J.A.R.V.I.S. OS - Mission Control Dashboard Configuration
+# All 9 panels configuration
+
+dashboard:
+  title: "J.A.R.V.I.S. Mission Control"
+  host: "0.0.0.0"
+  port: 8080
+  debug: false
+
+  # Panel Configuration (9 Panels)
+  panels:
+    - id: "system_health"
+      title: "System Health"
+      enabled: true
+      position: 1
+      size: "large"
+      refresh_interval: 10
+      metrics:
+        - cpu_percent
+        - memory_percent
+        - gpu_percent
+        - disk_percent
+        - network_io
+        - temperature
+        - uptime
+
+    - id: "agent_status"
+      title: "Agent Status"
+      enabled: true
+      position: 2
+      size: "large"
+      refresh_interval: 15
+      agents:
+        archangels:
+          - "metatron"
+          - "gabriel"
+          - "raphael"
+          - "uriel"
+          - "sandalphon"
+          - "jophiel"
+          - "michael"
+          - "raguel"
+          - "remiel"
+          - "sariel"
+          - "azrael"
+          - "chamuel"
+        openjarvis:
+          - "simple"
+          - "deep_research"
+          - "code_assistant"
+          - "morning_digest"
+          - "scheduled_monitor"
+        specialized:
+          - "tattoo_business"
+          - "financial"
+          - "marketing"
+          - "security"
+
+    - id: "task_queue"
+      title: "Task Queue"
+      enabled: true
+      position: 3
+      size: "medium"
+      refresh_interval: 5
+      show:
+        - "pending"
+        - "running"
+        - "completed"
+        - "failed"
+        - "queue_depth"
+        - "avg_completion_time"
+
+    - id: "memory_graph"
+      title: "Memory Graph"
+      enabled: true
+      position: 4
+      size: "medium"
+      refresh_interval: 30
+      visualize:
+        - "obsidian_brain"
+        - "holographic_brain"
+        - "vector_db"
+        - "sync_status"
+        - "chunk_count"
+        - "feedback_loop"
+
+    - id: "financial"
+      title: "Financial"
+      enabled: true
+      position: 5
+      size: "medium"
+      refresh_interval: 300
+      metrics:
+        - "revenue_today"
+        - "revenue_week"
+        - "revenue_month"
+        - "expenses_today"
+        - "expenses_week"
+        - "expenses_month"
+        - "profit_margin"
+        - "forecast"
+        - "tattoo_bookings"
+        - "automation_revenue"
+
+    - id: "calendar"
+      title: "Calendar"
+      enabled: true
+      position: 6
+      size: "medium"
+      refresh_interval: 60
+      views:
+        - "today"
+        - "week"
+        - "month"
+      show:
+        - "appointments"
+        - "tattoo_sessions"
+        - "consultations"
+        - "blocks"
+        - "conflicts"
+
+    - id: "communications"
+      title: "Communications"
+      enabled: true
+      position: 7
+      size: "medium"
+      refresh_interval: 30
+      sources:
+        - "email"
+        - "slack"
+        - "discord"
+        - "telegram"
+      show:
+        - "unread_count"
+        - "priority_items"
+        - "direct_messages"
+        - "mentions"
+
+    - id: "research"
+      title: "Research"
+      enabled: true
+      position: 8
+      size: "medium"
+      refresh_interval: 60
+      active_threads: 10
+      show:
+        - "deep_research_tasks"
+        - "arxiv_papers"
+        - "market_analysis"
+        - "competitor_intel"
+
+    - id: "security"
+      title: "Security"
+      enabled: true
+      position: 9
+      size: "medium"
+      refresh_interval: 60
+      threat_level: "low"
+      monitors:
+        - "failed_logins"
+        - "api_anomalies"
+        - "file_integrity"
+        - "network_scans"
+        - "vulnerability_alerts"
+      alerts:
+        - "intrusion_attempts"
+        - "privilege_escalation"
+        - "data_exfiltration"
+
+  # WebSocket settings
+  websocket:
+    ping_interval: 25
+    ping_timeout: 10
+    max_message_size: 1048576
+
+  # UI Theme
+  theme:
+    mode: "dark"
+    primary_color: "#00d4ff"
+    secondary_color: "#0099cc"
+    accent_color: "#ffd700"
+    background: "#0a0e17"
+    surface: "#111827"
+    text_primary: "#f3f4f6"
+    text_secondary: "#9ca3af"
+    border: "#1f2937"
+    font_family: "'JetBrains Mono', 'Fira Code', monospace"
+
+  # Data retention
+  data_retention:
+    metrics_days: 30
+    logs_days: 90
+    events_days: 180
+
+  # API settings
+  api:
+    rate_limit: 1000
+    cors:
+      enabled: true
+      origins:
+        - "http://localhost:8080"
+        - "http://127.0.0.1:8080"

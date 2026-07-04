@@ -1,0 +1,93 @@
+# Great Sage Tattoos & Tarot — Pricing Data (YAML)
+# Structured for agent parsing
+
+tattoo_services:
+  minimum_session:
+    price: 150
+    duration_hours: 1
+    description: "1 hour minimum"
+  hourly_rate:
+    price: 200
+    duration_hours: 1
+    description: "Custom work, large pieces"
+  half_day:
+    price: 700
+    duration_hours: 4
+    discount_pct: 10
+    description: "4 hour session"
+  full_day:
+    price: 1300
+    duration_hours: 8
+    discount_pct: 15
+    description: "8 hour session"
+  consultation:
+    price: 50
+    duration_hours: 0.5
+    applied_to_deposit: true
+  touchup:
+    price: 0
+    condition: "Within 6 months, original artist only"
+  coverup_assessment:
+    price: 75
+    applied_to_booking: true
+
+tarot_services:
+  single_question:
+    price: 30
+    duration_min: 15
+  standard_reading:
+    price: 60
+    duration_min: 30
+  deep_dive:
+    price: 110
+    duration_min: 60
+  monthly_guidance:
+    price: 200
+    sessions: 4
+    duration_min: 30
+  event_rate:
+    price_per_hour: 150
+    minimum_hours: 2
+
+packages:
+  tattoo_tarot_combo:
+    price: 220
+    includes:
+      - "1hr tattoo session"
+      - "30min tarot reading"
+    savings: 40
+  spiritual_alignment:
+    price: 350
+    includes:
+      - "2hr tattoo session"
+      - "60min tarot reading"
+      - "Follow-up check-in"
+    savings: 80
+  artist_mentorship:
+    price_monthly: 500
+    includes:
+      - "4hrs tattoo time/month"
+      - "Business coaching"
+      - "Priority booking"
+    commitment_months: 3
+
+deposits_policies:
+  booking_deposit_pct: 50
+  refundable: false
+  applied_to_final: true
+  cancellation_notice_hours: 48
+  reschedule_free_count: 1
+  reschedule_fee: 50
+  payment_methods:
+    - cash
+    - venmo
+    - zelle
+    - card
+  card_fee_pct: 3
+
+metadata:
+  business_name: "Great Sage Tattoos & Tarot"
+  currency: "USD"
+  timezone: "America/Phoenix"
+  updated: "2026-07-01"
+  version: "1.0"

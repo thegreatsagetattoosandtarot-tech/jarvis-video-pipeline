@@ -1,0 +1,19 @@
+service_id: "tarot_monthly"
+name: "Tarot Reading — Monthly Subscription"
+category: "tarot"
+duration_minutes: 45
+price: 250
+description: "4 sessions per month (weekly). 15% discount vs single sessions."
+deposit_required: 0
+deposit_type: "none"
+discount_pct: 15
+recurring: true
+billing_cycle: "monthly"
+tags:
+  - "subscription"
+  - "recurring"
+  - "discounted"
+  - "weekly"
+active: true
+created: "2026-07-01"
+updated: "2026-07-01"

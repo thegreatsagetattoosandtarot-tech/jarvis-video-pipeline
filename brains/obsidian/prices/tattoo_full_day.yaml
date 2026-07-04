@@ -1,0 +1,16 @@
+service_id: "tattoo_full_day"
+name: "Tattoo — Full Day (7 Hours)"
+category: "tattoo"
+duration_minutes: 420
+price: 1100
+description: "7-hour session for major pieces. 20% discount vs hourly."
+deposit_required: 300
+deposit_type: "fixed"
+discount_pct: 20
+tags:
+  - "full_day"
+  - "major_piece"
+  - "discounted"
+active: true
+created: "2026-07-01"
+updated: "2026-07-01"

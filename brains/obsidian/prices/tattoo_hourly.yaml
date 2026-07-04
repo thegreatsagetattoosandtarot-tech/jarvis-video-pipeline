@@ -1,0 +1,15 @@
+service_id: "tattoo_hourly"
+name: "Tattoo — Hourly Rate"
+category: "tattoo"
+duration_minutes: 60
+price: 200
+description: "Custom tattoo work per hour. Minimum 1 hour."
+deposit_required: 100
+deposit_type: "fixed"
+tags:
+  - "custom"
+  - "hourly"
+  - "large_piece"
+active: true
+created: "2026-07-01"
+updated: "2026-07-01"

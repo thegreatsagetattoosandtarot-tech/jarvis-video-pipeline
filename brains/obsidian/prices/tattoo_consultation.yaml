@@ -1,0 +1,14 @@
+service_id: "tattoo_consultation"
+name: "Tattoo Consultation"
+category: "tattoo"
+duration_minutes: 30
+price: 50
+description: "30-minute design consultation, placement discussion, and quote"
+deposit_required: 50
+deposit_type: "full"
+tags:
+  - "consultation"
+  - "design"
+active: true
+created: "2026-07-01"
+updated: "2026-07-01"

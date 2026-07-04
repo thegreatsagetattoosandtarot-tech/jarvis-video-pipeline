@@ -1,0 +1,16 @@
+service_id: "tattoo_half_day"
+name: "Tattoo — Half Day (4 Hours)"
+category: "tattoo"
+duration_minutes: 240
+price: 700
+description: "4-hour session for larger pieces. 10% discount vs hourly."
+deposit_required: 200
+deposit_type: "fixed"
+discount_pct: 10
+tags:
+  - "half_day"
+  - "large_piece"
+  - "discounted"
+active: true
+created: "2026-07-01"
+updated: "2026-07-01"

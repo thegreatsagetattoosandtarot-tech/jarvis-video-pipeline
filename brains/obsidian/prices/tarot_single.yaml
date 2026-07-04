@@ -1,0 +1,15 @@
+service_id: "tarot_single"
+name: "Tarot Reading — Single Session"
+category: "tarot"
+duration_minutes: 45
+price: 75
+description: "45-minute tarot reading for specific question or general guidance"
+deposit_required: 25
+deposit_type: "fixed"
+tags:
+  - "reading"
+  - "guidance"
+  - "single"
+active: true
+created: "2026-07-01"
+updated: "2026-07-01"

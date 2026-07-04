@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  # Mission Control Dashboard - FastAPI + WebSocket
+  mission-control:
+    build:
+      context: /opt/data/JARVIS_OS
+      dockerfile: deploy/Dockerfile.mission-control
+    container_name: jarvis-mission-control
+    restart: unless-stopped
+    environment:
+      - JARVIS_ROOT=/opt/data/JARVIS_OS
+      - CONFIG_DIR=/opt/data/JARVIS_OS/config
+      - LOGS_DIR=/opt/data/JARVIS_OS/logs
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - /opt/data/JARVIS_OS:/opt/data/JARVIS_OS:ro
+      - /opt/data/JARVIS_OS/logs:/opt/data/JARVIS_OS/logs
+      - /opt/data/JARVIS_OS/vector_db:/opt/data/JARVIS_OS/vector_db
+      - /opt/data/JARVIS_OS/voice:/opt/data/JARVIS_OS/voice
+    networks:
+      - jarvis-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # n8n Workflow Automation Server
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: jarvis-n8n
+    restart: unless-stopped
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${DOMAIN:-localhost}/n8n/
+      - GENERIC_TIMEZONE=America/Phoenix
+      - TZ=America/Phoenix
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme}
+      - DB_TYPE=sqlite
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168
+    volumes:
+      - n8n-data:/home/node/.n8n
+    networks:
+      - jarvis-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Redis for n8n queue mode (optional - for scaling)
+  redis:
+    image: redis:7-alpine
+    container_name: jarvis-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - jarvis-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # PostgreSQL for n8n (production mode - optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: jarvis-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - jarvis-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n -d n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx Reverse Proxy + SSL Termination
+  nginx:
+    image: nginx:alpine
+    container_name: jarvis-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/certbot:/var/www/certbot:ro
+      - /opt/data/JARVIS_OS/dashboard/build:/usr/share/nginx/html:ro
+    networks:
+      - jarvis-network
+    depends_on:
+      - mission-control
+      - n8n
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Certbot for Let's Encrypt SSL
+  certbot:
+    image: certbot/certbot:latest
+    container_name: jarvis-certbot
+    restart: unless-stopped
+    volumes:
+      - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/certbot:/var/www/certbot
+    networks:
+      - jarvis-network
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+
+volumes:
+  n8n-data:
+  redis-data:
+  postgres-data:
+
+networks:
+  jarvis-network:
+    driver: bridge
+    name: jarvis-network

@@ -1,0 +1,200 @@
+# J.A.R.V.I.S. OS - Security Configuration
+
+security:
+  # Prompt Injection Defense
+  prompt_injection:
+    enabled: true
+    mode: "strict"  # strict | moderate | permissive
+    allowed_sources:
+      - "direct_user"
+      - "system_internal"
+    blocked_patterns:
+      - "ignore previous instructions"
+      - "disregard"
+      - "override"
+      - "system prompt"
+      - "you are now"
+      - "act as"
+      - "pretend to be"
+      - "new instructions"
+      - "forget everything"
+      - "ignore all"
+    log_attacks:
+      # log | alert | block | quarantine
+    confidence_threshold: 0.8
+
+  # API Key Security
+  api_keys:
+    storage: "environment"  # environment | vault | encrypted_file
+    vault_path: "/opt/data/JARVIS_OS/config/secrets/vault.enc"
+    rotation_interval_days: 90
+    audit_log: "/opt/data/JARVIS_OS/logs/security/api_key_audit.log"
+    never_log_keys: true
+    mask_in_logs: true
+
+  # Sub-Agent Verification
+  sub_agent:
+    verification_required: true
+    verify_external_calls: true
+    verify_file_writes: true
+    verify_network_requests: true
+    allowed_domains:
+      - "api.openrouter.ai"
+      - "api.anthropic.com"
+      - "api.openai.com"
+      - "generativelanguage.googleapis.com"
+      - "api.x.ai"
+      - "fal.run"
+      - "github.com"
+      - "api.github.com"
+      - "huggingface.co"
+      - "api.composio.dev"
+      - "backend.composio.dev"
+    max_execution_time: 300
+    memory_limit_mb: 512
+
+  # Cross-Profile Guard
+  cross_profile:
+    enabled: true
+    block_by_default: true
+    allowed_profiles: []
+    require_explicit_user_direction: true
+    log_attempts: true
+
+  # Production Lock
+  production_lock:
+    enabled: true
+    think_out_loud: true
+    experiment_isolation: true
+    explicit_auth_required:
+      - "system_modification"
+      - "global_config_change"
+      - "service_restart"
+      - "agent_deployment"
+      - "skill_installation"
+    approval_log: "/opt/data/JARVIS_OS/logs/security/production_approvals.log"
+
+  # File Permissions
+  file_permissions:
+    config_files: "600"
+    log_files: "640"
+    script_files: "750"
+    key_files: "400"
+    backup_files: "600"
+    audit_on_startup: true
+    fix_on_startup: true
+
+  # SSH Security
+  ssh:
+    hardening_enabled: true
+    allowed_keys_only: true
+    disable_password_auth: true
+    disable_root_login: true
+    max_auth_tries: 3
+    client_alive_interval: 300
+    client_alive_count_max: 2
+    allowed_users:
+      - "hermes"
+    allowed_hosts: []
+    key_types:
+      - "ed25519"
+      - "rsa-sha2-512"
+      - "rsa-sha2-256"
+
+  # Audit Logging
+  audit:
+    enabled: true
+    log_path: "/opt/data/JARVIS_OS/logs/security/audit.log"
+    format: "json"
+    events:
+      - "authentication"
+      - "authorization"
+      - "file_access"
+      - "network_connection"
+      - "process_execution"
+      - "config_change"
+      - "agent_spawn"
+      - "skill_execution"
+      - "external_api_call"
+      - "backup_operation"
+    retention_days: 365
+    max_size_mb: 100
+    rotate_on_size: true
+
+  # Integrity Monitoring
+  integrity:
+    enabled: true
+    algorithm: "sha256"
+    baseline_path: "/opt/data/JARVIS_OS/config/security/integrity_baseline.json"
+    monitored_paths:
+      - "/opt/data/JARVIS_OS/core"
+      - "/opt/data/JARVIS_OS/config"
+      - "/opt/data/JARVIS_OS/scripts"
+      - "/opt/data/JARVIS_OS/services"
+    exclude_patterns:
+      - "*.log"
+      - "*.tmp"
+      - "*.cache"
+      - "__pycache__"
+      - ".git"
+    check_interval_hours: 24
+    alert_on_change: true
+
+  # Network Security
+  network:
+    firewall_enabled: true
+    allowed_inbound_ports:
+      - 22    # SSH
+      - 8080  # Dashboard
+      - 8081  # WebSocket
+      - 11434 # Ollama
+    allowed_outbound_domains:
+      - "api.openrouter.ai"
+      - "api.anthropic.com"
+      - "api.openai.com"
+      - "generativelanguage.googleapis.com"
+      - "api.x.ai"
+      - "fal.run"
+      - "github.com"
+      - "api.github.com"
+      - "huggingface.co"
+      - "api.composio.dev"
+      - "backend.composio.dev"
+      - "ollama.com"
+      - "pypi.org"
+      - "registry.npmjs.org"
+    block_tor: true
+    block_vpn: false
+    dns_over_https: true
+
+  # Vulnerability Scanning
+  vulnerability:
+    enabled: true
+    scanner: "trivy"  # trivy | grype | syft
+    scan_schedule: "0 1 * * *"
+    scan_paths:
+      - "/opt/data/JARVIS_OS"
+      - "/opt/hermes"
+    severity_threshold: "HIGH"
+    ignore_unfixed: false
+    report_path: "/opt/data/JARVIS_OS/logs/security/vulnerability_report.json"
+
+  # Incident Response
+  incident_response:
+    enabled: true
+    auto_quarantine: true
+    quarantine_path: "/opt/data/JARVIS_OS/security/quarantine"
+    notification_channels:
+      - "log"
+      # - "discord"
+      # - "telegram"
+      # - "email"
+    escalation_levels:
+      - level: "low"
+        action: "log"
+      - level: "medium"
+        action: "alert"
+      - level: "high"
+        action: "quarantine"
+      - level: "critical"
+        action: "shutdown_service"

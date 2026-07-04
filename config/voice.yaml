@@ -1,0 +1,164 @@
+# J.A.R.V.I.S. OS - Voice Pipeline Configuration
+
+voice:
+  # Wake Word Detection
+  wake_word:
+    enabled: true
+    engine: "porcupine"  # porcupine | precise | snowboy
+    access_key: "${PICOVOICE_ACCESS_KEY}"
+    keywords:
+      - name: "jarvis"
+        path: "/opt/data/JARVIS_OS/voice/models/porcupine/jarvis_linux.ppn"
+        sensitivity: 0.7
+      - name: "wake_up_jarvis"
+        path: "/opt/data/JARVIS_OS/voice/models/porcupine/wake_up_jarvis_linux.ppn"
+        sensitivity: 0.6
+    audio_device: "default"
+    sample_rate: 16000
+    frame_length: 512
+
+  # Speech-to-Text
+  stt:
+    enabled: true
+    engine: "whisper"  # whisper | faster-whisper | deepgram | assemblyai
+    model: "base.en"  # tiny.en | base.en | small.en | medium.en | large-v3
+    device: "cpu"  # cpu | cuda | mps
+    compute_type: "int8"  # int8 | float16 | float32
+    language: "en"
+    vad_enabled: true
+    vad_threshold: 0.5
+    min_silence_duration: 0.8
+    max_recording_duration: 30
+    beam_size: 5
+    temperature: 0.0
+    initial_prompt: "JARVIS, Sir, AI assistant, butler, precise, calm."
+
+  # Text-to-Speech
+  tts:
+    enabled: true
+    engine: "piper"  # piper | edge | elevenlabs | coqui | bark
+    voice:
+      piper:
+        model: "/opt/data/JARVIS_OS/voice/models/piper/en_GB-alan-medium.onnx"
+        config: "/opt/data/JARVIS_OS/voice/models/piper/en_GB-alan-medium.onnx.json"
+        speaker_id: 0
+        length_scale: 1.0
+        noise_scale: 0.667
+        noise_w_scale: 0.8
+      edge:
+        voice: "en-GB-RyanNeural"  # British male
+        rate: "+0%"
+        pitch: "+0Hz"
+        volume: "+0%"
+      elevenlabs:
+        voice_id: "${ELEVENLABS_VOICE_ID}"
+        model_id: "eleven_multilingual_v2"
+        stability: 0.75
+        similarity_boost: 0.75
+        style: 0.0
+        use_speaker_boost: true
+    audio_device: "default"
+    sample_rate: 22050
+    cache_enabled: true
+    cache_dir: "/opt/data/JARVIS_OS/voice/audio_cache"
+
+  # Voice Conversion (RVC)
+  rvc:
+    enabled: true
+    model_path: "/opt/data/JARVIS_OS/voice/models/rvc/jarvis_british.pth"
+    index_path: "/opt/data/JARVIS_OS/voice/models/rvc/jarvis_british.index"
+    pitch: 0
+    filter_radius: 3
+    rms_mix_rate: 0.25
+    protect: 0.33
+    hop_length: 128
+    device: "cpu"
+
+  # Interrupt Handling
+  interrupt:
+    enabled: true
+    vad_engine: "silero"  # silero | webrtc
+    vad_threshold: 0.5
+    min_speech_duration: 0.3
+    max_silence_duration: 1.0
+    pre_buffer_duration: 0.5
+    interrupt_on_wake_word: true
+    interrupt_on_speech: true
+    graceful_stop: true
+
+  # Audio Processing
+  audio:
+    input_device: "default"
+    output_device: "default"
+    input_channels: 1
+    output_channels: 1
+    input_sample_rate: 16000
+    output_sample_rate: 22050
+    buffer_size: 1024
+    dtype: "float32"
+    noise_reduction: true
+    noise_reduction_strength: 0.3
+    auto_gain_control: true
+    echo_cancellation: true
+
+  # Intent Parsing
+  intent:
+    enabled: true
+    engine: "hermes"  # hermes | rasa | custom
+    confidence_threshold: 0.7
+    fallback_to_llm: true
+    llm_model: "qwen3:0.6b"
+    custom_intents:
+      - name: "system_status"
+        patterns:
+          - "system status"
+          - "how are you"
+          - "status report"
+          - "health check"
+      - name: "run_task"
+        patterns:
+          - "run"
+          - "execute"
+          - "start"
+          - "launch"
+      - name: "stop_task"
+        patterns:
+          - "stop"
+          - "cancel"
+          - "abort"
+          - "halt"
+      - name: "query_memory"
+        patterns:
+          - "remember"
+          - "recall"
+          - "what did"
+          - "search memory"
+      - name: "spawn_agent"
+        patterns:
+          - "spawn"
+          - "create agent"
+          - "new agent"
+          - "deploy agent"
+
+  # Session Management
+  session:
+    timeout: 300  # 5 minutes of inactivity
+    max_history: 20
+    save_transcripts: true
+    transcript_dir: "/opt/data/JARVIS_OS/logs/voice/transcripts"
+
+  # Performance
+  performance:
+    target_latency_ms: 500
+    max_latency_ms: 2000
+    streaming_stt: true
+    streaming_tts: true
+    concurrent_requests: 1
+
+  # Debug
+  debug:
+    log_audio: false
+    log_intents: true
+    log_performance: true
+    save_recordings: false
+    recording_dir: "/opt/data/JARVIS_OS/voice/recordings"

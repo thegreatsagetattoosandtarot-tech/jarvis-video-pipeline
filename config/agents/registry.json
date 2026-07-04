@@ -1,0 +1,65 @@
+{
+  "spawned_at": "339352.365107086",
+  "agents": [
+    {
+      "agent_id": "metatron",
+      "name": "Metatron",
+      "active": true
+    },
+    {
+      "agent_id": "gabriel",
+      "name": "Gabriel",
+      "active": false
+    },
+    {
+      "agent_id": "raphael",
+      "name": "Raphael",
+      "active": true
+    },
+    {
+      "agent_id": "uriel",
+      "name": "Uriel",
+      "active": true
+    },
+    {
+      "agent_id": "sandalphon",
+      "name": "Sandalphon",
+      "active": true
+    },
+    {
+      "agent_id": "jophiel",
+      "name": "Jophiel",
+      "active": true
+    },
+    {
+      "agent_id": "michael",
+      "name": "Michael",
+      "active": true
+    },
+    {
+      "agent_id": "raguel",
+      "name": "Raguel",
+      "active": true
+    },
+    {
+      "agent_id": "remiel",
+      "name": "Remiel",
+      "active": true
+    },
+    {
+      "agent_id": "sariel",
+      "name": "Sariel",
+      "active": true
+    },
+    {
+      "agent_id": "azrael",
+      "name": "Azrael",
+      "active": true
+    },
+    {
+      "agent_id": "chamuel",
+      "name": "Chamuel",
+      "active": true
+    }
+  ]
+}

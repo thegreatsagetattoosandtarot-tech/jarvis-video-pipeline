@@ -1,0 +1,208 @@
+{
+  "version": "1.0",
+  "updated": "2026-06-29T17:28:00Z",
+  "archangels": {
+    "metatron": {
+      "name": "Metatron",
+      "archangel": "Metatron",
+      "role": "Brain AI / Memory Hub",
+      "domain": "Central Knowledge Management",
+      "sintra_parallel": "Brain AI",
+      "file": "metatron.py",
+      "class": "MetatronAgent",
+      "config_file": "METATRON_CONFIG",
+      "status": "active",
+      "tools": ["vector_memory", "rag", "knowledge_sync", "context_share", "semantic_search", "brain_indexing"]
+    },
+    "gabriel": {
+      "name": "Gabriel",
+      "archangel": "Gabriel",
+      "role": "Communication / Content",
+      "domain": "Copywriting & Content",
+      "sintra_parallel": "Penn (Copywriter)",
+      "file": "gabriel.py",
+      "class": "GabrielAgent",
+      "config_file": "GABRIEL_CONFIG",
+      "status": "active",
+      "tools": ["web_search", "content_gen", "social_media", "copywriting", "persuasive_writing", "brand_voice"]
+    },
+    "raphael": {
+      "name": "Raphael",
+      "archangel": "Raphael",
+      "role": "Support / Healing",
+      "domain": "Customer Support & Client Care",
+      "sintra_parallel": "Cassie (Customer Support)",
+      "file": "raphael.py",
+      "class": "RaphaelAgent",
+      "config_file": "RAPHAEL_CONFIG",
+      "status": "active",
+      "tools": ["email", "ticketing", "faq_management", "empathy_engine", "resolution_tracking", "client_care"]
+    },
+    "uriel": {
+      "name": "Uriel",
+      "archangel": "Uriel",
+      "role": "Research / Analysis",
+      "domain": "Data Analysis & Research",
+      "sintra_parallel": "Dexter (Data Analyst)",
+      "file": "uriel.py",
+      "class": "UrielAgent",
+      "config_file": "URIEL_CONFIG",
+      "status": "active",
+      "tools": ["data_analysis", "research", "web_search", "arxiv", "polymarket", "financial_modeling"]
+    },
+    "sandalphon": {
+      "name": "Sandalphon",
+      "archangel": "Sandalphon",
+      "role": "Social / Community",
+      "domain": "Social Media Management",
+      "sintra_parallel": "Soshie (Social Media Manager)",
+      "file": "sandalphon.py",
+      "class": "SandalphonAgent",
+      "config_file": "SANDALPHON_CONFIG",
+      "status": "active",
+      "tools": ["social_media", "content_calendar", "engagement_tracking", "community_management", "trend_analysis", "posting_automation"]
+    },
+    "jophiel": {
+      "name": "Jophiel",
+      "archangel": "Jophiel",
+      "role": "Marketing / Beauty",
+      "domain": "Email Marketing & Campaigns",
+      "sintra_parallel": "Emmie (Email Marketing)",
+      "file": "jophiel.py",
+      "class": "JophielAgent",
+      "config_file": "JOPHIEL_CONFIG",
+      "status": "active",
+      "tools": ["email_marketing", "campaign_management", "ab_testing", "list_segmentation", "automation_flows", "deliverability"]
+    },
+    "michael": {
+      "name": "Michael",
+      "archangel": "Michael",
+      "role": "Leadership / Strategy",
+      "domain": "Business Strategy & Leadership",
+      "sintra_parallel": "Buddy (Business Developer)",
+      "file": "michael.py",
+      "class": "MichaelAgent",
+      "config_file": "MICHAEL_CONFIG",
+      "status": "active",
+      "tools": ["strategic_planning", "business_development", "partnership_analysis", "growth_strategy", "competitive_intel", "decision_frameworks"]
+    },
+    "raguel": {
+      "name": "Raguel",
+      "archangel": "Raguel",
+      "role": "Security / Compliance",
+      "domain": "Security & Compliance",
+      "sintra_parallel": "Security Specialist",
+      "file": "raguel.py",
+      "class": "RaguelAgent",
+      "config_file": "RAGUEL_CONFIG",
+      "status": "active",
+      "tools": ["security_audit", "compliance_check", "vulnerability_scan", "threat_modeling", "incident_response", "access_control"]
+    },
+    "remiel": {
+      "name": "Remiel",
+      "archangel": "Remiel",
+      "role": "Creative / Vision",
+      "domain": "Video Creation & Visual Content",
+      "sintra_parallel": "Vince (Video Creator)",
+      "file": "remiel.py",
+      "class": "RemielAgent",
+      "config_file": "REMIEL_CONFIG",
+      "status": "active",
+      "tools": ["video_generation", "video_editing", "motion_graphics", "visual_storytelling", "animation", "brand_visuals"]
+    },
+    "sariel": {
+      "name": "Sariel",
+      "archangel": "Sariel",
+      "role": "Knowledge / Learning",
+      "domain": "Learning Systems & Knowledge Transfer",
+      "sintra_parallel": "Scout (Researcher)",
+      "file": "sariel.py",
+      "class": "SarielAgent",
+      "config_file": "SARIEL_CONFIG",
+      "status": "active",
+      "tools": ["research", "knowledge_extraction", "learning_path_design", "skill_assessment", "training_materials", "documentation"]
+    },
+    "azrael": {
+      "name": "Azrael",
+      "archangel": "Azrael",
+      "role": "Archival / Cleanup",
+      "domain": "Data Archival & Lifecycle Management",
+      "sintra_parallel": "Archive Specialist",
+      "file": "azrael.py",
+      "class": "AzraelAgent",
+      "config_file": "AZRAEL_CONFIG",
+      "status": "active",
+      "tools": ["data_archival", "lifecycle_management", "cleanup_automation", "retention_policies", "compliance_archive", "digital_preservation"]
+    },
+    "chamuel": {
+      "name": "Chamuel",
+      "archangel": "Chamuel",
+      "role": "Relationships / Ops",
+      "domain": "Operations & Relationship Management",
+      "sintra_parallel": "Milli (Project Manager)",
+      "file": "chamuel.py",
+      "class": "ChamuelAgent",
+      "config_file": "CHAMUEL_CONFIG",
+      "status": "active",
+      "tools": ["project_management", "relationship_management", "workflow_optimization", "team_coordination", "vendor_management", "process_improvement"]
+    }
+  },
+  "openjarvis": {
+    "simple": {
+      "name": "Simple Agent",
+      "type": "conversational",
+      "status": "active",
+      "model": "qwen3:0.6b"
+    },
+    "deep_research": {
+      "name": "Deep Research Agent",
+      "type": "research",
+      "status": "active",
+      "model": "qwen3:0.6b"
+    },
+    "code_assistant": {
+      "name": "Code Assistant",
+      "type": "coding",
+      "status": "active",
+      "model": "qwen3:0.6b"
+    },
+    "morning_digest": {
+      "name": "Morning Digest Agent",
+      "type": "briefing",
+      "status": "active",
+      "model": "qwen3:0.6b"
+    },
+    "scheduled_monitor": {
+      "name": "Scheduled Monitor",
+      "type": "monitoring",
+      "status": "active",
+      "model": "qwen3:0.6b"
+    }
+  },
+  "specialized": {
+    "tattoo_business": {
+      "name": "Tattoo Business Automation",
+      "type": "business",
+      "status": "pending",
+      "domain": "The Great Sage Tattoos & Tarot"
+    },
+    "financial": {
+      "name": "Financial Automation",
+      "type": "finance",
+      "status": "pending",
+      "domain": "Revenue, expenses, forecasting"
+    },
+    "marketing": {
+      "name": "Marketing Automation",
+      "type": "marketing",
+      "status": "pending",
+      "domain": "Multi-channel marketing"
+    },
+    "security": {
+      "name": "Security Monitoring",
+      "type": "security",
+      "status": "pending",
+      "domain": "Threat detection & response"
+    }
+  }
+}

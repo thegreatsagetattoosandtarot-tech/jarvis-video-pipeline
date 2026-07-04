@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. Mission Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --bg-primary: #0a0e14;
+            --bg-secondary: #111820;
+            --bg-panel: #161e28;
+            --bg-panel-hover: #1a2430;
+            --border: #233040;
+            --border-bright: #2d3f54;
+            --text-primary: #e8edf3;
+            --text-secondary: #8b98a8;
+            --text-muted: #5a6a7a;
+            --accent-cyan: #00d4ff;
+            --accent-cyan-dim: #00d4ff40;
+            --accent-amber: #ffb800;
+            --accent-amber-dim: #ffb80030;
+            --accent-green: #00ff88;
+            --accent-green-dim: #00ff8830;
+            --accent-red: #ff4466;
+            --accent-red-dim: #ff446630;
+            --accent-purple: #b880ff;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --shadow-glow: rgba(0, 212, 255, 0.15);
+        }
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        /* Background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        /* Ambient glow */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px; right: -200px;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--shadow-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            animation: pulse-glow 8s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px var(--shadow-glow);
+        }
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--text-primary) 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo-text span {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: blink 2s ease-in-out infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .status-dot.warning { background: var(--accent-amber); box-shadow: 0 0 10px var(--accent-amber); }
+        .status-dot.error { background: var(--accent-red); box-shadow: 0 0 10px var(--accent-red); }
+        .status-text { font-weight: 500; }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .time-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .time-display .time { color: var(--text-primary); font-weight: 500; }
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-panel);
+            color: var(--text-primary);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn:hover { border-color: var(--accent-cyan); background: var(--bg-panel-hover); }
+        .btn.primary { border-color: var(--accent-cyan); background: linear-gradient(135deg, var(--accent-cyan-dim) 0%, var(--bg-panel) 100%); }
+        .btn.primary:hover { box-shadow: 0 0 20px var(--shadow-glow); }
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(300px, auto);
+            gap: 20px;
+            padding: 24px 32px;
+            max-width: 2400px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .panel:hover { border-color: var(--border-bright); box-shadow: 0 8px 32px var(--shadow); }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-panel) 100%);
+        }
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+        }
+        .panel-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .panel-icon.system { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+        .panel-icon.agents { background: var(--accent-purple-dim); color: var(--accent-purple); }
+        .panel-icon.tasks { background: var(--accent-amber-dim); color: var(--accent-amber); }
+        .panel-icon.memory { background: var(--accent-green-dim); color: var(--accent-green); }
+        .panel-icon.financial { background: var(--accent-green-dim); color: var(--accent-green); }
+        .panel-icon.calendar { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+        .panel-icon.comms { background: var(--accent-amber-dim); color: var(--accent-amber); }
+        .panel-icon.research { background: var(--accent-purple-dim); color: var(--accent-purple); }
+        .panel-icon.security { background: var(--accent-red-dim); color: var(--accent-red); }
+        .panel-content { padding: 20px; flex: 1; overflow-y: auto; }
+        .panel.system { grid-column: span 4; grid-row: span 2; }
+        .panel.agents { grid-column: span 3; grid-row: span 2; }
+        .panel.tasks { grid-column: span 3; }
+        .panel.memory { grid-column: span 2; }
+        .panel.financial { grid-column: span 3; }
+        .panel.calendar { grid-column: span 2; }
+        .panel.comms { grid-column: span 3; }
+        .panel.research { grid-column: span 3; }
+        .panel.security { grid-column: span 3; grid-row: span 2; }
+        /* System Panel */
+        .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .metric { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+        .metric-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .metric-value { font-size: 24px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+        .metric-value.warning { color: var(--accent-amber); }
+        .metric-value.critical { color: var(--accent-red); }
+        .metric-value.good { color: var(--accent-green); }
+        .metric-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        /* Progress bars */
+        .progress-bar { height: 6px; background: var(--bg-primary); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .progress-fill.cpu { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); }
+        .progress-fill.mem { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); }
+        .progress-fill.disk { background: linear-gradient(90deg, var(--accent-amber), var(--accent-red)); }
+        .progress-fill.net { background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan)); }
+        /* Agent cards */
+        .agent-list { display: flex; flex-direction: column; gap: 10px; }
+        .agent-card { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; transition: all 0.2s; }
+        .agent-card:hover { border-color: var(--border-bright); background: var(--bg-panel-hover); }
+        .agent-avatar { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+        .agent-info { flex: 1; min-width: 0; }
+        .agent-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .agent-role { font-size: 11px; color: var(--text-muted); }
+        .agent-status { width: 8px; height: 8px; border-radius: 50%; }
+        .agent-status.active { background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        .agent-status.idle { background: var(--text-muted); }
+        .agent-status.busy { background: var(--accent-amber); box-shadow: 0 0 8px var(--accent-amber); animation: blink 1s infinite; }
+        /* Task queue */
+        .task-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .task-stat { text-align: center; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; }
+        .task-stat-value { font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .task-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .task-stat.pending .task-stat-value { color: var(--accent-cyan); }
+        .task-stat.running .task-stat-value { color: var(--accent-amber); }
+        .task-stat.completed .task-stat-value { color: var(--accent-green); }
+        .task-stat.failed .task-stat-value { color: var(--accent-red); }
+        .task-list { max-height: 200px; overflow-y: auto; }
+        .task-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; font-size: 12px; }
+        .task-item:last-child { margin-bottom: 0; }
+        .task-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+        .task-badge.pending { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+        .task-badge.running { background: var(--accent-amber-dim); color: var(--accent-amber); }
+        .task-badge.completed { background: var(--accent-green-dim); color: var(--accent-green); }
+        .task-badge.failed { background: var(--accent-red-dim); color: var(--accent-red); }
+        /* Memory panel */
+        .memory-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .memory-stat { text-align: center; padding: 20px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; }
+        .memory-stat-value { font-size: 32px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); }
+        .memory-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+        .sync-status { margin-top: 16px; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 12px; }
+        .sync-indicator { width: 10px; height: 10px; border-radius: 50%; }
+        .sync-indicator.active { background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); animation: spin 1s linear infinite; }
+        .sync-indicator.inactive { background: var(--text-muted); }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Financial panel */
+        .financial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        .financial-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+        .financial-card.highlight { grid-column: span 3; border-color: var(--accent-green); background: var(--accent-green-dim); }
+        .financial-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .financial-value { font-size: 20px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+        .financial-value.positive { color: var(--accent-green); }
+        .financial-value.negative { color: var(--accent-red); }
+        /* Calendar */
+        .cal-day { padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .cal-day:last-child { border-bottom: none; }
+        .cal-date { font-size: 12px; color: var(--text-secondary); min-width: 80px; }
+        .cal-event { font-size: 12px; color: var(--text-primary); background: var(--bg-secondary); padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border); }
+        .cal-empty { color: var(--text-muted); font-style: italic; font-size: 12px; }
+        /* Comms */
+        .comm-channel { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+        .comm-channel:last-child { margin-bottom: 0; }
+        .comm-name { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+        .comm-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .comm-dot.connected { background: var(--accent-green); }
+        .comm-dot.disconnected { background: var(--text-muted); }
+        .comm-count { font-family: 'JetBrains Mono', monospace; font-weight: 600; padding: 2px 8px; background: var(--bg-primary); border-radius: 4px; font-size: 12px; }
+        .comm-count.unread { color: var(--accent-red); background: var(--accent-red-dim); }
+        /* Research */
+        .research-thread { padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+        .research-thread:last-child { margin-bottom: 0; }
+        .research-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+        .research-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 16px; }
+        .research-empty { text-align: center; color: var(--text-muted); padding: 40px 20px; font-style: italic; }
+        /* Security */
+        .threat-level { text-align: center; padding: 20px; }
+        .threat-badge { display: inline-block; padding: 8px 24px; border-radius: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 14px; }
+        .threat-badge.low { background: var(--accent-green-dim); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .threat-badge.medium { background: var(--accent-amber-dim); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+        .threat-badge.high { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid var(--accent-red); }
+        .security-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+        .security-item { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+        .security-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .security-value { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .security-value.ok { color: var(--accent-green); }
+        .security-value.warn { color: var(--accent-amber); }
+        .alerts-list { margin-top: 16px; max-height: 150px; overflow-y: auto; }
+        .alert-item { padding: 10px 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; font-size: 12px; display: flex; gap: 10px; align-items: flex-start; }
+        .alert-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+        .alert-dot.info { background: var(--accent-cyan); }
+        .alert-dot.warning { background: var(--accent-amber); }
+        .alert-dot.critical { background: var(--accent-red); }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .main-grid { grid-template-columns: repeat(6, 1fr); }
+            .panel.system { grid-column: span 6; }
+            .panel.agents { grid-column: span 6; }
+            .panel.tasks { grid-column: span 6; }
+            .panel.memory { grid-column: span 3; }
+            .panel.financial { grid-column: span 3; }
+            .panel.calendar { grid-column: span 3; }
+            .panel.comms { grid-column: span 6; }
+            .panel.research { grid-column: span 6; }
+            .panel.security { grid-column: span 6; }
+        }
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; padding: 16px; }
+            .panel { grid-column: span 1 !important; grid-row: span 1 !important; }
+            .metric-grid { grid-template-columns: 1fr; }
+            .task-stats { grid-template-columns: repeat(2, 1fr); }
+            .memory-stats { grid-template-columns: repeat(2, 1fr); }
+            .financial-grid { grid-template-columns: 1fr; }
+            .security-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">J</div>
+                <div class="logo-text">
+                    <h1>J.A.R.V.I.S.</h1>
+                    <span>Mission Control</span>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span class="status-text" id="statusText">CONNECTING...</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="time-display">
+                <span class="time" id="currentTime">--:--:--</span>
+                <span> MST</span>
+            </div>
+            <button class="btn" onclick="refreshAll()">REFRESH</button>
+            <button class="btn primary" onclick="spawnAgents()">SPAWN AGENTS</button>
+        </div>
+    </header>
+
+    <main class="main-grid" id="mainGrid">
+        <!-- Panels will be injected here -->
+    </main>
+
+    <script>
+        // Configuration
+        const API_BASE = 'http://localhost:8080';
+        const WS_URL = 'ws://localhost:8080/ws';
+        let ws = null;
+        let reconnectAttempts = 0;
+        const MAX_RECONNECT = 5;
+
+        // Panel definitions
+        const PANELS = [
+            { id: 'system', title: 'System Health', icon: '⚡', className: 'system', iconClass: 'system' },
+            { id: 'agents', title: 'Agent Status', icon: '🤖', className: 'agents', iconClass: 'agents' },
+            { id: 'tasks', title: 'Task Queue', icon: '📋', className: 'tasks', iconClass: 'tasks' },
+            { id: 'memory', title: 'Memory Graph', icon: '🧠', className: 'memory', iconClass: 'memory' },
+            { id: 'financial', title: 'Financial', icon: '💰', className: 'financial', iconClass: 'financial' },
+            { id: 'calendar', title: 'Calendar', icon: '📅', className: 'calendar', iconClass: 'calendar' },
+            { id: 'comms', title: 'Communications', icon: '📡', className: 'comms', iconClass: 'comms' },
+            { id: 'research', title: 'Research', icon: '🔬', className: 'research', iconClass: 'research' },
+            { id: 'security', title: 'Security', icon: '🛡️', className: 'security', iconClass: 'security' },
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPanels();
+            startClock();
+            connectWebSocket();
+            fetchAllData();
+            setInterval(fetchAllData, 30000); // Poll every 30s as backup
+        });
+
+        function renderPanels() {
+            const grid = document.getElementById('mainGrid');
+            grid.innerHTML = PANELS.map(p => `
+                <section class="panel ${p.className}" id="panel-${p.id}">
+                    <header class="panel-header">
+                        <div class="panel-title">
+                            <div class="panel-icon ${p.iconClass}">${p.icon}</div>
+                            <span>${p.title}</span>
+                        </div>
+                    </header>
+                    <div class="panel-content" id="content-${p.id}">
+                        <div class="loading">Loading...</div>
+                    </div>
+                </section>
+            `).join('');
+        }
+
+        function startClock() {
+            const update = () => {
+                const now = new Date();
+                const time = now.toLocaleTimeString('en-US', { 
+                    hour12: false, 
+                    timeZone: 'America/Phoenix',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('currentTime').textContent = time;
+            };
+            update();
+            setInterval(update, 1000);
+        }
+
+        function setStatus(connected) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            if (connected) {
+                dot.className = 'status-dot';
+                text.textContent = 'ONLINE';
+            } else {
+                dot.className = 'status-dot warning';
+                text.textContent = 'OFFLINE';
+            }
+        }
+
+        // WebSocket connection
+        function connectWebSocket() {
+            if (ws && ws.readyState === WebSocket.OPEN) return;
+            
+            ws = new WebSocket(WS_URL);
+            
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                setStatus(true);
+                reconnectAttempts = 0;
+            };
+            
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    handleWebSocketMessage(data);
+                } catch (e) {
+                    console.error('WS parse error:', e);
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket closed');
+                setStatus(false);
+                if (reconnectAttempts < MAX_RECONNECT) {
+                    reconnectAttempts++;
+                    setTimeout(connectWebSocket, 2000 * reconnectAttempts);
+                }
+            };
+            
+            ws.onerror = (err) => {
+                console.error('WebSocket error:', err);
+                setStatus(false);
+            };
+        }
+
+        function handleWebSocketMessage(data) {
+            if (data.type === 'system') updateSystemPanel(data.payload);
+            else if (data.type === 'agents') updateAgentsPanel(data.payload);
+            else if (data.type === 'tasks') updateTasksPanel(data.payload);
+            else if (data.type === 'memory') updateMemoryPanel(data.payload);
+            else if (data.type === 'financial') updateFinancialPanel(data.payload);
+            else if (data.type === 'calendar') updateCalendarPanel(data.payload);
+            else if (data.type === 'comms') updateCommsPanel(data.payload);
+            else if (data.type === 'research') updateResearchPanel(data.payload);
+            else if (data.type === 'security') updateSecurityPanel(data.payload);
+            else if (data.type === 'all') {
+                Object.keys(data.payload).forEach(key => {
+                    const updater = window[`update${key.charAt(0).toUpperCase() + key.slice(1)}Panel`];
+                    if (updater) updater(data.payload[key]);
+                });
+            }
+        }
+
+        // Fetch all data via REST
+        async function fetchAllData() {
+            try {
+                const endpoints = [
+                    ['system', '/api/system'],
+                    ['agents', '/api/agents'],
+                    ['tasks', '/api/tasks'],
+                    ['memory', '/api/memory'],
+                    ['financial', '/api/financial'],
+                    ['calendar', '/api/calendar'],
+                    ['comms', '/api/communications'],
+                    ['research', '/api/research'],
+                    ['security', '/api/security'],
+                ];
+                
+                const results = await Promise.allSettled(
+                    endpoints.map(([key, url]) => fetch(`${API_BASE}${url}`).then(r => r.json()).then(data => [key, data]))
+                );
+                
+                results.forEach((result, i) => {
+                    if (result.status === 'fulfilled') {
+                        const [key, data] = result.value;
+                        const updater = window[`update${key.charAt(0).toUpperCase() + key.slice(1)}Panel`];
+                        if (updater) updater(data);
+                    }
+                });
+                setStatus(true);
+            } catch (e) {
+                console.error('Fetch error:', e);
+                setStatus(false);
+            }
+        }
+
+        async function refreshAll() {
+            const btn = event.target;
+            btn.textContent = 'REFRESHING...';
+            btn.disabled = true;
+            await fetchAllData();
+            btn.textContent = 'REFRESH';
+            btn.disabled = false;
+        }
+
+        async function spawnAgents() {
+            const btn = event.target;
+            btn.textContent = 'SPAWNING...';
+            btn.disabled = true;
+            try {
+                // This would call a backend endpoint to spawn agents
+                await fetch(`${API_BASE}/api/agents/spawn-all`, { method: 'POST' });
+                setTimeout(fetchAllData, 2000);
+            } catch (e) {
+                console.error('Spawn error:', e);
+            }
+            btn.textContent = 'SPAWN AGENTS';
+            btn.disabled = false;
+        }
+
+        // Panel updaters
+        function updateSystemPanel(d) {
+            const content = document.getElementById('content-system');
+            const cpu = d.cpu?.percent || 0;
+            const mem = d.memory?.percent || 0;
+            const disk = d.disk?.percent || 0;
+            const netSent = formatBytes(d.network?.bytes_sent || 0);
+            const netRecv = formatBytes(d.network?.bytes_recv || 0);
+            const uptime = formatUptime(d.uptime || 0);
+            
+            content.innerHTML = `
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="metric-label">CPU Usage</div>
+                        <div class="metric-value ${cpu > 80 ? 'critical' : cpu > 50 ? 'warning' : 'good'}">${cpu.toFixed(1)}%</div>
+                        <div class="progress-bar"><div class="progress-fill cpu" style="width: ${cpu}%"></div></div>
+                        <div class="metric-sub">${d.cpu?.count || 0} cores • ${d.cpu?.freq?.current?.toFixed(0) || 0} MHz</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Memory</div>
+                        <div class="metric-value ${mem > 85 ? 'critical' : mem > 60 ? 'warning' : 'good'}">${mem.toFixed(1)}%</div>
+                        <div class="progress-bar"><div class="progress-fill mem" style="width: ${mem}%"></div></div>
+                        <div class="metric-sub">${formatBytes(d.memory?.used || 0)} / ${formatBytes(d.memory?.total || 0)}</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Disk</div>
+                        <div class="metric-value ${disk > 90 ? 'critical' : disk > 70 ? 'warning' : 'good'}">${disk.toFixed(1)}%</div>
+                        <div class="progress-bar"><div class="progress-fill disk" style="width: ${disk}%"></div></div>
+                        <div class="metric-sub">${formatBytes(d.disk?.free || 0)} free</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Network</div>
+                        <div class="metric-value">▲${netSent}/s ▼${netRecv}/s</div>
+                        <div class="progress-bar"><div class="progress-fill net" style="width: 50%"></div></div>
+                        <div class="metric-sub">↑${formatBytes(d.network?.bytes_sent || 0)} ↓${formatBytes(d.network?.bytes_recv || 0)}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 16px; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: space-between; font-size: 12px;">
+                    <span>System Uptime: <strong>${uptime}</strong></span>
+                    <span>Load: <strong>${d.cpu?.load_avg?.[0]?.toFixed(2) || 0} / ${d.cpu?.load_avg?.[1]?.toFixed(2) || 0} / ${d.cpu?.load_avg?.[2]?.toFixed(2) || 0}</strong></span>
+                    <span>GPU: <strong>${d.gpu?.available ? 'Available' : 'Not Detected'}</strong></span>
+                </div>
+            `;
+        }
+
+        function updateAgentsPanel(d) {
+            const content = document.getElementById('content-agents');
+            const agents = d.agents || [];
+            
+            if (agents.length === 0) {
+                content.innerHTML = `
+                    <div class="agent-list">
+                        <div style="text-align: center; color: var(--text-muted); padding: 40px 20px;">
+                            <div style="font-size: 32px; margin-bottom: 12px;">🤖</div>
+                            <div>No agents spawned</div>
+                            <div style="font-size: 11px; margin-top: 8px;">Click "SPAWN AGENTS" to deploy</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            content.innerHTML = `
+                <div class="agent-list">
+                    ${agents.map(a => `
+                        <div class="agent-card">
+                            <div class="agent-avatar" style="background: ${a.color || 'var(--accent-cyan-dim)'}; color: ${a.color || 'var(--accent-cyan)'}">${a.icon || a.name?.charAt(0) || '?'}</div>
+                            <div class="agent-info">
+                                <div class="agent-name">${a.name || 'Unknown'}</div>
+                                <div class="agent-role">${a.role || 'Archangel Agent'}</div>
+                            </div>
+                            <div class="agent-status ${a.status || 'idle'}"></div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function updateTasksPanel(d) {
+            const content = document.getElementById('content-tasks');
+            const pending = d.pending || 0;
+            const running = d.running || 0;
+            const completed = d.completed || 0;
+            const failed = d.failed || 0;
+            const queue = d.queue_depth || 0;
+            
+            content.innerHTML = `
+                <div class="task-stats">
+                    <div class="task-stat pending">
+                        <div class="task-stat-value">${pending}</div>
+                        <div class="task-stat-label">Pending</div>
+                    </div>
+                    <div class="task-stat running">
+                        <div class="task-stat-value">${running}</div>
+                        <div class="task-stat-label">Running</div>
+                    </div>
+                    <div class="task-stat completed">
+                        <div class="task-stat-value">${completed}</div>
+                        <div class="task-stat-label">Completed</div>
+                    </div>
+                    <div class="task-stat failed">
+                        <div class="task-stat-value">${failed}</div>
+                        <div class="task-stat-label">Failed</div>
+                    </div>
+                </div>
+                <div class="task-list" id="taskList">
+                    ${queue > 0 ? `<div class="task-item"><span class="task-badge pending">Queue Depth: ${queue}</span></div>` : '<div style="text-align:center;color:var(--text-muted);padding:20px;">No tasks in queue</div>'}
+                </div>
+            `;
+        }
+
+        function updateMemoryPanel(d) {
+            const content = document.getElementById('content-memory');
+            const obsidian = d.obsidian_files || 0;
+            const holographic = d.holographic_files || 0;
+            const vector = d.vector_chunks || 0;
+            const sync = d.sync_status || 'inactive';
+            
+            content.innerHTML = `
+                <div class="memory-stats">
+                    <div class="memory-stat">
+                        <div class="memory-stat-value">${obsidian}</div>
+                        <div class="memory-stat-label">Obsidian Files</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value">${holographic}</div>
+                        <div class="memory-stat-label">Holographic Files</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value">${vector}</div>
+                        <div class="memory-stat-label">Vector Chunks</div>
+                    </div>
+                    <div class="memory-stat">
+                        <div class="memory-stat-value">${obsidian + holographic}</div>
+                        <div class="memory-stat-label">Total Indexed</div>
+                    </div>
+                </div>
+                <div class="sync-status">
+                    <div class="sync-indicator ${sync === 'active' ? 'active' : 'inactive'}"></div>
+                    <div>
+                        <div style="font-weight:500;">Sync Status: <span style="text-transform:capitalize">${sync}</span></div>
+                        <div style="font-size:11px;color:var(--text-muted);">Last sync: ${d.last_sync ? new Date(d.last_sync).toLocaleTimeString() : 'Never'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateFinancialPanel(d) {
+            const content = document.getElementById('content-financial');
+            const revToday = d.revenue_today || 0;
+            const revWeek = d.revenue_week || 0;
+            const revMonth = d.revenue_month || 0;
+            const expToday = d.expenses_today || 0;
+            const expWeek = d.expenses_week || 0;
+            const expMonth = d.expenses_month || 0;
+            const margin = d.profit_margin || 0;
+            const forecast30 = d.forecast_30d || 0;
+            const forecast90 = d.forecast_90d || 0;
+            const bookings = d.tattoo_bookings || 0;
+            const autoRev = d.automation_revenue || 0;
+            
+            content.innerHTML = `
+                <div class="financial-grid">
+                    <div class="financial-card">
+                        <div class="financial-label">Revenue Today</div>
+                        <div class="financial-value positive">$${revToday.toLocaleString()}</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">Revenue This Week</div>
+                        <div class="financial-value positive">$${revWeek.toLocaleString()}</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">Revenue This Month</div>
+                        <div class="financial-value positive">$${revMonth.toLocaleString()}</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">Expenses Today</div>
+                        <div class="financial-value negative">$${expToday.toLocaleString()}</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">Expenses This Week</div>
+                        <div class="financial-value negative">$${expWeek.toLocaleString()}</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">Expenses This Month</div>
+                        <div class="financial-value negative">$${expMonth.toLocaleString()}</div>
+                    </div>
+                    <div class="financial-card highlight">
+                        <div class="financial-label">Profit Margin</div>
+                        <div class="financial-value positive">${margin.toFixed(1)}%</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">30-Day Forecast</div>
+                        <div class="financial-value positive">$${forecast30.toLocaleString()}</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">90-Day Forecast</div>
+                        <div class="financial-value positive">$${forecast90.toLocaleString()}</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    <div class="financial-card">
+                        <div class="financial-label">Tattoo Bookings</div>
+                        <div class="financial-value">${bookings}</div>
+                    </div>
+                    <div class="financial-card">
+                        <div class="financial-label">Automation Revenue</div>
+                        <div class="financial-value positive">$${autoRev.toLocaleString()}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateCalendarPanel(d) {
+            const content = document.getElementById('content-calendar');
+            const today = d.today || [];
+            const week = d.week || [];
+            const conflicts = d.conflicts || [];
+            
+            content.innerHTML = `
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">TODAY</div>
+                    ${today.length > 0 ? today.map(e => `
+                        <div class="cal-day">
+                            <span class="cal-date">${e.time || 'All day'}</span>
+                            <span class="cal-event">${e.title || 'Event'}</span>
+                        </div>
+                    `).join('') : '<div class="cal-empty">No events today</div>'}
+                </div>
+                ${week.length > 0 ? `
+                <div>
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">THIS WEEK</div>
+                    ${week.slice(0, 5).map(e => `
+                        <div class="cal-day">
+                            <span class="cal-date">${e.date || ''} ${e.time || ''}</span>
+                            <span class="cal-event">${e.title || 'Event'}</span>
+                        </div>
+                    `).join('')}
+                </div>` : ''}
+                ${conflicts.length > 0 ? `
+                <div style="margin-top: 16px; padding: 12px; background: var(--accent-red-dim); border: 1px solid var(--accent-red); border-radius: 8px;">
+                    <div style="font-size: 11px; color: var(--accent-red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">⚠ ${conflicts.length} CONFLICT(S)</div>
+                    ${conflicts.map(c => `<div style="font-size: 12px; color: var(--text-primary);">${c}</div>`).join('')}
+                </div>` : ''}
+            `;
+        }
+
+        function updateCommsPanel(d) {
+            const content = document.getElementById('content-comms');
+            const channels = [
+                { key: 'email', name: 'Email', icon: '✉️', count: d.email_unread || 0 },
+                { key: 'slack', name: 'Slack', icon: '💬', count: d.slack_unread || 0 },
+                { key: 'discord', name: 'Discord', icon: '🎮', count: d.discord_unread || 0 },
+                { key: 'telegram', name: 'Telegram', icon: '📱', count: d.telegram_unread || 0 },
+            ];
+            const priority = d.priority_items || [];
+            
+            content.innerHTML = `
+                ${channels.map(c => `
+                    <div class="comm-channel">
+                        <div class="comm-name">
+                            <span class="comm-dot ${c.count > 0 ? 'connected' : 'disconnected'}"></span>
+                            <span>${c.icon} ${c.name}</span>
+                        </div>
+                        <span class="comm-count ${c.count > 0 ? 'unread' : ''}">${c.count}</span>
+                    </div>
+                `).join('')}
+                ${priority.length > 0 ? `
+                <div style="margin-top: 16px;">
+                    <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">PRIORITY ITEMS</div>
+                    ${priority.map(p => `
+                        <div class="comm-channel" style="border-color: var(--accent-amber);">
+                            <div class="comm-name"><span class="comm-dot" style="background: var(--accent-amber)"></span> ${p}</div>
+                        </div>
+                    `).join('')}
+                </div>` : ''}
+            `;
+        }
+
+        function updateResearchPanel(d) {
+            const content = document.getElementById('content-research');
+            const threads = d.active_threads || [];
+            const papers = d.arxiv_papers || [];
+            const market = d.market_analysis || [];
+            const intel = d.competitor_intel || [];
+            
+            const allItems = [
+                ...threads.map(t => ({ title: t.title || t, meta: `Thread • ${t.status || 'active'}`, type: 'thread' })),
+                ...papers.map(p => ({ title: p.title || p, meta: `arXiv • ${p.category || 'cs.AI'}`, type: 'paper' })),
+                ...market.map(m => ({ title: m.title || m, meta: `Market • ${m.symbol || 'N/A'}`, type: 'market' })),
+                ...intel.map(i => ({ title: i.title || i, meta: `Intel • ${i.source || 'web'}`, type: 'intel' })),
+            ];
+            
+            if (allItems.length === 0) {
+                content.innerHTML = '<div class="research-empty">No active research threads</div>';
+                return;
+            }
+            
+            content.innerHTML = allItems.map(item => `
+                <div class="research-thread">
+                    <div class="research-title">${item.title}</div>
+                    <div class="research-meta">${item.meta}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateSecurityPanel(d) {
+            const content = document.getElementById('content-security');
+            const threat = d.threat_level || 'low';
+            const failed = d.failed_logins || 0;
+            const anomalies = d.api_anomalies || 0;
+            const integrity = d.file_integrity || 'ok';
+            const scans = d.network_scans || 0;
+            const vulns = d.vulnerability_alerts || 0;
+            const alerts = d.alerts || [];
+            
+            content.innerHTML = `
+                <div class="threat-level">
+                    <span class="threat-badge ${threat}">Threat Level: ${threat.toUpperCase()}</span>
+                </div>
+                <div class="security-grid">
+                    <div class="security-item">
+                        <div class="security-label">Failed Logins (24h)</div>
+                        <div class="security-value ${failed > 10 ? 'warn' : 'ok'}">${failed}</div>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-label">API Anomalies</div>
+                        <div class="security-value ${anomalies > 0 ? 'warn' : 'ok'}">${anomalies}</div>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-label">File Integrity</div>
+                        <div class="security-value ${integrity === 'ok' ? 'ok' : 'warn'}">${integrity.toUpperCase()}</div>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-label">Network Scans</div>
+                        <div class="security-value ${scans > 5 ? 'warn' : 'ok'}">${scans}</div>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-label">Vulnerability Alerts</div>
+                        <div class="security-value ${vulns > 0 ? 'warn' : 'ok'}">${vulns}</div>
+                    </div>
+                    <div class="security-item">
+                        <div class="security-label">Active Alerts</div>
+                        <div class="security-value ${alerts.length > 0 ? 'warn' : 'ok'}">${alerts.length}</div>
+                    </div>
+                </div>
+                ${alerts.length > 0 ? `
+                <div class="alerts-list">
+                    ${alerts.map(a => `
+                        <div class="alert-item">
+                            <div class="alert-dot ${a.severity || 'info'}"></div>
+                            <div>
+                                <div style="font-weight:500;">${a.title || 'Alert'}</div>
+                                <div style="font-size:11px;color:var(--text-muted);">${a.message || ''}</div>
+                                <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">${a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : ''}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>` : ''}
+            `;
+        }
+
+        // Helpers
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            if (days > 0) return `${days}d ${hours}h ${mins}m`;
+            if (hours > 0) return `${hours}h ${mins}m`;
+            return `${mins}m`;
+        }
+    </script>
+</body>
+</html>

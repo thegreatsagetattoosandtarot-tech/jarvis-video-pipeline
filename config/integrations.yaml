@@ -1,0 +1,266 @@
+# J.A.R.V.I.S. OS - Integration Configuration
+# All external API keys and service connections
+# NEVER commit actual keys - use environment variables or secret manager
+
+integrations:
+  # AI Model Providers
+  openrouter:
+    enabled: false
+    api_key: "${OPENROUTER_API_KEY}"
+    base_url: "https://openrouter.ai/api/v1"
+    models:
+      - "nvidia/nemotron-3-ultra-550b-a55b:free"
+      - "anthropic/claude-3.5-sonnet"
+      - "openai/gpt-4o"
+      - "google/gemini-pro-1.5"
+      - "x-ai/grok-2"
+
+  openai:
+    enabled: false
+    api_key: "${OPENAI_API_KEY}"
+    base_url: "https://api.openai.com/v1"
+    organization: "${OPENAI_ORG_ID}"
+
+  anthropic:
+    enabled: false
+    api_key: "${ANTHROPIC_API_KEY}"
+    base_url: "https://api.anthropic.com"
+
+  grok:
+    enabled: false
+    api_key: "${GROK_API_KEY}"
+    base_url: "https://api.x.ai/v1"
+
+  gemini:
+    enabled: false
+    api_key: "${GEMINI_API_KEY}"
+    base_url: "https://generativelanguage.googleapis.com/v1beta"
+
+  fal:
+    enabled: false
+    api_key: "${FAL_API_KEY}"
+    base_url: "https://fal.run/api/v1"
+
+  # Ollama (Local LLMs) - ACTIVE
+  ollama:
+    enabled: true
+    base_url: "http://localhost:11434"
+    models:
+      - "qwen3:0.6b"
+      - "llama3.1:8b"
+      - "mistral:7b"
+      - "codellama:7b"
+    default_model: "qwen3:0.6b"
+
+  # Composio - Preferred for SaaS integrations
+  composio:
+    enabled: false
+    api_key: "${COMPOSIO_API_KEY}"
+    base_url: "https://backend.composio.dev/api/v1"
+    connected_accounts: {}
+
+  # Communication & Productivity
+  gmail:
+    enabled: false
+    method: "composio"  # composio | oauth | api
+    oauth:
+      client_id: "${GMAIL_CLIENT_ID}"
+      client_secret: "${GMAIL_CLIENT_SECRET}"
+      refresh_token: "${GMAIL_REFRESH_TOKEN}"
+
+  google_calendar:
+    enabled: false
+    method: "composio"
+    oauth:
+      client_id: "${GCAL_CLIENT_ID}"
+      client_secret: "${GCAL_CLIENT_SECRET}"
+      refresh_token: "${GCAL_REFRESH_TOKEN}"
+
+  google_drive:
+    enabled: false
+    method: "composio"
+    oauth:
+      client_id: "${GDRIVE_CLIENT_ID}"
+      client_secret: "${GDRIVE_CLIENT_SECRET}"
+      refresh_token: "${GDRIVE_REFRESH_TOKEN}"
+
+  notion:
+    enabled: false
+    api_key: "${NOTION_API_KEY}"
+    workspace_id: "${NOTION_WORKSPACE_ID}"
+
+  slack:
+    enabled: false
+    method: "composio"
+    bot_token: "${SLACK_BOT_TOKEN}"
+    signing_secret: "${SLACK_SIGNING_SECRET}"
+
+  discord:
+    enabled: false
+    bot_token: "${DISCORD_BOT_TOKEN}"
+    application_id: "${DISCORD_APP_ID}"
+
+  telegram:
+    enabled: false
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    chat_id: "${TELEGRAM_CHAT_ID}"
+
+  # Social Media
+  twitter:
+    enabled: false
+    method: "api_v2"
+    api_key: "${TWITTER_API_KEY}"
+    api_secret: "${TWITTER_API_SECRET}"
+    access_token: "${TWITTER_ACCESS_TOKEN}"
+    access_secret: "${TWITTER_ACCESS_SECRET}"
+    bearer_token: "${TWITTER_BEARER_TOKEN}"
+
+  linkedin:
+    enabled: false
+    method: "composio"
+    access_token: "${LINKEDIN_ACCESS_TOKEN}"
+
+  instagram:
+    enabled: false
+    method: "graph_api"
+    access_token: "${INSTAGRAM_ACCESS_TOKEN}"
+    business_account_id: "${INSTAGRAM_BUSINESS_ID}"
+
+  tiktok:
+    enabled: false
+    method: "api"
+    access_token: "${TIKTOK_ACCESS_TOKEN}"
+
+  facebook:
+    enabled: false
+    method: "graph_api"
+    access_token: "${FACEBOOK_ACCESS_TOKEN}"
+    page_id: "${FACEBOOK_PAGE_ID}"
+
+  # Code & Development
+  github:
+    enabled: true
+    method: "pat"
+    token: "${GITHUB_PAT}"
+    username: "${GITHUB_USERNAME}"
+    webhook_secret: "${GITHUB_WEBHOOK_SECRET}"
+    repositories:
+      - "open-jarvis/OpenJarvis"
+      - "${GITHUB_USERNAME}/JARVIS_OS"
+    permissions:
+      contents: read
+      issues: write
+      pull_requests: write
+      actions: read
+      deployments: write
+
+  gitlab:
+    enabled: false
+    token: "${GITLAB_TOKEN}"
+    url: "https://gitlab.com/api/v4"
+
+  # Hosting & Infrastructure
+  hostinger:
+    enabled: true
+    method: "ssh"
+    host: "${HOSTINGER_HOST}"
+    user: "${HOSTINGER_USER}"
+    ssh_key_path: "/opt/data/jarvis/.ssh/hostinger_ed25519"
+    remote_path: "/home/${HOSTINGER_USER}/jarvis_backups"
+    port: 65002
+
+  vercel:
+    enabled: false
+    token: "${VERCEL_TOKEN}"
+    team_id: "${VERCEL_TEAM_ID}"
+
+  netlify:
+    enabled: false
+    token: "${NETLIFY_TOKEN}"
+
+  # Automation
+  zapier:
+    enabled: false
+    api_key: "${ZAPIER_API_KEY}"
+
+  n8n:
+    enabled: true
+    url: "https://n8n.yourdomain.com"
+    api_key: "${N8N_API_KEY}"
+    webhook_url: "https://n8n.yourdomain.com/webhook"
+    internal_url: "http://n8n:5678"
+    basic_auth:
+      user: "${N8N_BASIC_AUTH_USER}"
+      password: "${N8N_BASIC_AUTH_PASSWORD}"
+    database:
+      type: "postgresql"
+      host: "postgres"
+      port: 5432
+      database: "n8n"
+      user: "n8n"
+      password: "${POSTGRES_PASSWORD}"
+    redis:
+      enabled: true
+      host: "redis"
+      port: 6379
+      url: "redis://redis:6379"
+
+  # AI/ML Platforms
+  huggingface:
+    enabled: false
+    token: "${HF_TOKEN}"
+
+  # Payment Processing
+  stripe:
+    enabled: false
+    secret_key: "${STRIPE_SECRET_KEY}"
+    publishable_key: "${STRIPE_PUBLISHABLE_KEY}"
+    webhook_secret: "${STRIPE_WEBHOOK_SECRET}"
+
+  square:
+    enabled: false
+    access_token: "${SQUARE_ACCESS_TOKEN}"
+    location_id: "${SQUARE_LOCATION_ID}"
+    environment: "sandbox"  # sandbox | production
+
+  # Voice & Speech
+  elevenlabs:
+    enabled: false
+    api_key: "${ELEVENLABS_API_KEY}"
+
+  porcupine:
+    enabled: true
+    access_key: "${PICOVOICE_ACCESS_KEY}"
+    keyword_path: "/opt/data/JARVIS_OS/voice/models/porcupine/wake_up_jarvis.ppn"
+
+  # Database
+  chromadb:
+    enabled: true
+    host: "localhost"
+    port: 8000
+    persist_directory: "/opt/data/JARVIS_OS/vector_db/chroma_db"
+
+  # Monitoring
+  sentry:
+    enabled: false
+    dsn: "${SENTRY_DSN}"
+
+  datadog:
+    enabled: false
+    api_key: "${DATADOG_API_KEY}"
+    app_key: "${DATADOG_APP_KEY}"
+
+# Integration health check intervals (seconds)
+health_checks:
+  interval: 300
+  timeout: 30
+  retry_count: 3
+
+# Rate limiting defaults (requests per minute)
+rate_limits:
+  default: 60
+  openrouter: 100
+  anthropic: 50
+  openai: 60
+  twitter: 300
+  github: 5000
