@@ -210,6 +210,16 @@ integrations:
     enabled: false
     token: "${HF_TOKEN}"
 
+  # Nemotron Local (vLLM)
+  nemotron_local:
+    enabled: false
+    base_url: "http://localhost:8000/v1"
+    api_key: "nemotron-local"
+    models:
+      - "nvidia/Nemotron-3-Nano-4B"
+      - "nvidia/Nemotron-3-Nano-30B"
+      - "nvidia/Nemotron-3-Super-120B"
+
   # Payment Processing
   stripe:
     enabled: false

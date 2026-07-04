@@ -1,0 +1,12 @@
+{
+  "collection_name": "jarvis_dual_brain",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "obsidian_chunks": 16,
+  "holographic_chunks": 6,
+  "total_chunks": 22,
+  "chroma_path": "/opt/data/jarvis/vector_memory",
+  "brains": {
+    "obsidian": "/opt/data/jarvis/obsidian_brain",
+    "holographic": "/opt/data/jarvis/holographic_brain"
+  }
+}
